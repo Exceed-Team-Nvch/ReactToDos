@@ -131,13 +131,26 @@ body {
 }
 .input-item:focus {
     outline: none;
-    border: 2px solid gray;
-    border-radius: 10px;
     color: gray;
 }
-.visually-hidden {
-    display: none;
+.input-item {
+    border: 2px solid gray;
+    border-radius: 10px;
+    position: relative;
+    margin-left: 10px;
+    top: 15px;
+    vertical-align: bottom;
+    display: inline;
+    margin-right: 15px;
 }
-.non-hidden {
-    display: block;
+.todo-text-wrapper {
+    display: inline;
+}
+.icon {
+    cursor: pointer;
+    position: relative;
+    top: 15px;
+}
+.input-wrapper {
+    display: inline-block;
 }

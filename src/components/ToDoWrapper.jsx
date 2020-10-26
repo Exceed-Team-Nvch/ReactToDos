@@ -1,23 +1,47 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState , useEffect } from 'react';
 import { ToDoBottomBar } from './ToDoBottomBar';
 import { ToDoInput } from './ToDoInput';
 import { ToDoItem } from './ToDoItem';
 
 
+
 export function ToDoWrapper()  {
 
-    const [id,setId] = useState(0);
-    const [tasks, setTasks] = useState([]);
+    const [id,setId] = useState(() => {
 
-    function addItem(text,key,input) {
+        if (localStorage.getItem('id')) {
+            return  JSON.parse(localStorage.getItem('id'));
+        } else {
+            return 0;
+        }
+    });
+
+    const [tasks, setTasks] = useState(() => {
+        if (localStorage.getItem('tasks')) {
+           return  JSON.parse(localStorage.getItem('tasks'));
+        } else {
+            return [];
+        }
+    });
+    const [editingTask, setEditingTask] = useState({ id: 1, text: 2});
+
+        function addItem(text,key,input) {
         if (key === 'Enter' &&  text) 
-        {
+        {   
             setTasks(tasks.concat([{ text, completed: false, id: id }]));
             setId(id + 1);
             input.value = '';
         }
     }
+
+    useEffect(() => {
+
+        localStorage.setItem('id', JSON.stringify(id));
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+
+    }, [tasks, id]);
+
     function changeComplete(curItem,curElem) {
         setTasks(tasks.map((task) => { 
             if (task.id === parseInt(curItem.id,10)) {
@@ -30,6 +54,7 @@ export function ToDoWrapper()  {
     }
     function deleteItem(item) {
         setTasks(tasks.filter(task => task.id !== parseInt(item.id)));
+        localStorage.setItem('tasks', JSON.stringify(tasks));
     }
     function showAll() {
         setTasks(tasks.map(task => {
@@ -55,16 +80,38 @@ export function ToDoWrapper()  {
     function deleteComp() {
         setTasks(tasks.filter(task => !task.completed ));
     }
-    function focusText(itemText, obj) {
-            itemText.textContent = '';
-            console.log(itemText.children);
+
+
+    function editText (editItem,key,value,setEditingTask) {
+       
+        if (key === 'Enter') 
+        {
+            if (value) {
+                setTasks(tasks.map((task) => {
+                    if (`input${task.id}` == editItem.id ) {
+                          task.text = value;
+                          setEditingTask(false);
+                          return task;
+                    } else {
+                        return task;
+                    }
+                  }));    
+            } else {
+                setEditingTask(false);
+            }          
+        } 
     }
+
+    function focusOut (editItem) {
+        
+    }
+
     return (
 
         <div className="todo-wrapper" >
             <ToDoInput addItem={addItem} /> 
             {tasks.map((item) => (
-                <ToDoItem  id={item.id} deleteItem={deleteItem} key={item.id} itemText={item.text} changeComplete={changeComplete} focusText={focusText}/>          
+                <ToDoItem  id={item.id} deleteItem={deleteItem} key={item.id} itemText={item.text} completed={item.completed} changeComplete={changeComplete}  editText={editText} focusOut={focusOut}/>          
             )
             )}
             <ToDoBottomBar showAll={showAll} showActive={showActive} showComp={showComp} deleteComp={deleteComp}/>
