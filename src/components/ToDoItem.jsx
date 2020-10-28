@@ -5,13 +5,11 @@ import { CancelIcon } from './CancelIcon';
 
 export function ToDoItem(props) {
 
-
-    const {itemText, changeComplete, deleteItem, focusText, editText, focusOut,completed,visibility} = props;
-    const itemId = props.id;
+    const {itemText, changeComplete, deleteItem, editText, completed, cancelEditText, id: itemId} = props;
     return (
         <div className="todo-item" id={props.id}>
             <Circle changeComplete={changeComplete} completed={completed} />
-            <ToDoText  itemText={itemText} focusText={focusText} visibility={visibility} editText={editText} itemId={itemId} focusOut={focusOut}/>
+            <ToDoText  itemText={itemText} cancelEditText={cancelEditText} editText={editText} itemId={itemId} />
             <CancelIcon  deleteItem={deleteItem}/>
         </div>
     )

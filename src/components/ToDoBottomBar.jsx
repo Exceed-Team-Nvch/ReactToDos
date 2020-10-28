@@ -3,10 +3,8 @@ import Button from '@material-ui/core/Button';
 
 export function ToDoBottomBar(props) {
 
-    const showAll = props.showAll;
-    const showActive = props.showActive;
-    const showComp = props.showComp;
-    const deleteComp = props.deleteComp;
+    const {showAll, showActive, showComp, deleteComp} = props;
+
     return (
         <div className="todo-bottom-bar">
         <Button  className="btn btn-category" id="btn-all" onClick={showAll}>all</Button>

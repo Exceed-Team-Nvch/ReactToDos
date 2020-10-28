@@ -1,10 +1,5 @@
 import React from 'react';
 
-export function CancelIcon(props) {
-
-    const deleteItem = props.deleteItem; 
-
-    return (
+export const CancelIcon = ({ deleteItem }) => (
         <span className="cancel-icon" onClick={evt => deleteItem(evt.target.parentElement)}></span>
-    )
-}
+)
