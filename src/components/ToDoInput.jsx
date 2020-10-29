@@ -18,6 +18,7 @@ export function ToDoInput(props) {
 
   return (
     <input
+      placeholder="Enter your task here"
       className="todo-input"
       id="todo-input"
       value={value}

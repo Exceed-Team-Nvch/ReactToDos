@@ -3,45 +3,51 @@ import { useState, useEffect } from "react";
 import { ToDoBottomBar } from "./ToDoBottomBar";
 import { ToDoInput } from "./ToDoInput";
 import { ToDoItem } from "./ToDoItem";
+import axios from 'axios';
 
 export function ToDoWrapper() {
-  const [id, setId] = useState(0);
+
 
   const [tasks, setTasks] = useState([]);
   const [filter, setFilter] = useState("all");
+  const [linkApi, setlinkApi] = useState('https://simple-api-todo.herokuapp.com/api/todo');
+
 
   function addItem(text) {
-    setTasks(tasks.concat([{ text, completed: false, id: id }]));
-    setId(id + 1);
+    const task = { text , isDone: false};
+    axios.post( linkApi, task ).then((res) => {
+      setTasks(tasks.concat([{ text, isDone: false, _id: res.data.data._id }]));  
+      }
+    );
+    
   }
 
-  useEffect(() => {
-    const taskes = JSON.parse(localStorage.getItem("tasks"));
-    setId(JSON.parse(localStorage.getItem("id")));
-    if (taskes) {
-      setTasks(taskes);
-    }
+  useEffect(() => { 
+    const fetchData = async () => {
+      const result = await axios(
+        linkApi,
+      );
+      setTasks(result.data.data);
+    };
+    fetchData();
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem("id", JSON.stringify(id));
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-  }, [tasks, id]);
-
   function changeComplete(id) {
-    setTasks(
-      tasks.map((task) => {
-        if (task.id === parseInt(id, 10)) {
-          task.completed = !task.completed;
-          return task;
-        }
-        return task;
-      })
-    );
+    
+    axios.put(`${linkApi}/${id}`).then((res) => {
+      setTasks(tasks.map((task) => {
+         if (task._id === id) {
+           task.isDone = !task.isDone;
+         }
+         return task;
+      }))
+    });
   }
 
   function deleteItem(item) {
-    setTasks(tasks.filter((task) => task.id !== parseInt(item.id)));
+    axios.delete(`${linkApi}/${item.id}`).then((res) => {
+      setTasks(tasks.filter((task) => task._id !== item.id));
+    });
   }
   
   function showAll() {
@@ -57,14 +63,20 @@ export function ToDoWrapper() {
   }
 
   function deleteComp() {
-    setTasks(tasks.filter((task) => !task.completed));
+    setTasks(tasks.filter((task) => { 
+      if (task.isDone) {
+        axios.delete(`${linkApi}/${task._id}`);
+      } else {
+        return task;
+      }
+    }));
     setFilter("all");
   }
 
   function editText(itemInputValue, id) {
     setTasks(
       tasks.map((task) => {
-        if (task.id === id) {
+        if (task._id === id) {
           task.text = itemInputValue;
         }
         return task;
@@ -77,9 +89,9 @@ export function ToDoWrapper() {
       case "all":
         return tasks;
       case "completed":
-        return tasks.filter((task) => task.completed);
+        return tasks.filter((task) => task.isDone);
       case "active":
-        return tasks.filter((task) => !task.completed);
+        return tasks.filter((task) => !task.isDone);
       default:
         return tasks;
     }
@@ -91,11 +103,11 @@ export function ToDoWrapper() {
       {filterTasks().map((item) => {
         return (
           <ToDoItem
-            id={item.id}
-            key={item.id}
+            id={item._id}
+            key={item._id}
             deleteItem={deleteItem}
             itemText={item.text}
-            completed={item.completed}
+            completed={item.isDone}
             changeComplete={changeComplete}
             editText={editText}
           />
